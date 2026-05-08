@@ -84,7 +84,11 @@ def run_draft(pool):
     print(f"Coin flip: {first} pick first.\n")
 
     for pick_num in range(40):  # 20 picks each side
-        is_player_turn = (pick_num % 2 == 0) == player_goes_first
+        # True snake draft: pairs of picks reverse each round (1-2-2-1-1-2-2-1...)
+        pair_num = pick_num // 2
+        within_pair = pick_num % 2
+        is_first_turn = (pair_num % 2 == 0) == (within_pair == 0)
+        is_player_turn = is_first_turn if player_goes_first else not is_first_turn
 
         if is_player_turn:
             picks_so_far = len(player_deck)
@@ -128,3 +132,18 @@ def deal_hand(deck, hand_size=5):
     for card in hand:
         deck.remove(card)
     return hand
+
+
+def discard_and_draw(deck, hand, discard_indices):
+    """
+    Remove cards at discard_indices from hand, shuffle them back into the deck,
+    and draw replacements. Returns the new hand as a list.
+    """
+    if not discard_indices:
+        return hand
+    discards = [hand[i] for i in discard_indices]
+    kept     = [c for i, c in enumerate(hand) if i not in discard_indices]
+    deck.extend(discards)
+    random.shuffle(deck)
+    drawn = [deck.pop() for _ in discards]
+    return kept + drawn

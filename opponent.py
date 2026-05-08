@@ -1,4 +1,6 @@
+from collections import Counter
 from hand import evaluate_hand
+from deck import RANK_VALUE
 
 # Hand strength index runs 0–9 (High Card → Royal Flush).
 # Dividing by 9 gives a 0.0–1.0 scale used throughout this module.
@@ -105,6 +107,41 @@ class Opponent:
     # ------------------------------------------------------------------
     # Display
     # ------------------------------------------------------------------
+
+    def decide_raise_amount(self, hand):
+        """Return point value the opponent bets: 2 (small), 3 (medium), or 5 (all-in)."""
+        strength = evaluate_hand(hand)[0] / _MAX_RANK
+        bluff_rate = self._bluff_rate()
+        if strength >= 0.67:        # Full house or better — go big
+            return 5
+        if strength >= 0.33:        # Two pair to flush — medium value bet
+            return 3
+        if bluff_rate < 0.25:       # Hasn't been caught bluffing much — small bluff
+            return 2
+        return 2                    # Weak hand, small bluff either way
+
+    def choose_discards(self, hand):
+        """Return a list of indices (0-based) to discard, up to 3."""
+        rank_counts = Counter(RANK_VALUE[c.rank] for c in hand)
+        suit_counts = Counter(c.suit for c in hand)
+
+        # Keep any rank that appears in a pair, trips, or quads
+        kept_ranks = {r for r, n in rank_counts.items() if n >= 2}
+
+        # If 4 cards share a suit, chase the flush
+        flush_suit = next((s for s, n in suit_counts.items() if n >= 4), None)
+        if flush_suit:
+            discard_indices = [i for i, c in enumerate(hand) if c.suit != flush_suit]
+        elif kept_ranks:
+            discard_indices = [i for i, c in enumerate(hand)
+                               if RANK_VALUE[c.rank] not in kept_ranks]
+        else:
+            # No made hand — keep top 2 by rank, discard the rest
+            by_rank = sorted(range(5), key=lambda i: RANK_VALUE[hand[i].rank], reverse=True)
+            keep = set(by_rank[:2])
+            discard_indices = [i for i in range(5) if i not in keep]
+
+        return discard_indices[:3]
 
     def print_tendencies(self):
         """Print the opponent's current read on the player."""

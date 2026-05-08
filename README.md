@@ -20,12 +20,12 @@ The opponent is not random. It tracks your behavior across every round — how o
 
 ## Gameplay
 
-1. Choose draft or random deck mode
-2. (If drafting) Alternate picks from the shared pool until each side has 20 cards
-3. Play 4 rounds — each round deals 5 cards from your deck
-4. Each round: choose to **fold**, **check**, or **raise**; the opponent responds based on its model of you
+1. Choose match length: 4 (quick), 8 (standard), or 12 (long) rounds
+2. Choose draft or random deck mode
+3. (If drafting) Alternate picks from the shared pool until each side has 20 cards
+4. Each round deals 5 cards from your deck — choose to **fold**, **check**, or **raise**; the opponent responds based on its model of you
 5. Points are awarded per round (fold = opponent wins that round; showdown = best hand wins)
-6. After 4 rounds the match score is displayed along with the opponent's final read on your tendencies
+6. After all rounds the match score is displayed along with the opponent's final read on your tendencies
 
 ### Betting Flow
 
